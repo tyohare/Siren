@@ -17,13 +17,17 @@ int    ZigZagPeriod   =5;
 
 int x,y = 0;
 double currLow,currHigh,prevLow,prevHigh,prevPrevHigh,prevPrevLow = 0;
+double prevMonthHigh, prevMonthLow;
+double prevWeekKey;
+bool trend;
 
 
 void OnTick() {
 
-     if(IsNewBar())
-
-     {
+     if(IsNewBar()){
+     
+         //analyze monthly
+         analyzeMonthly();
 
          int b,a;
          double ZZ,ZZVal,high=0;
@@ -130,11 +134,38 @@ void findPatterns(){
 
 }
 
-void analyseMonthly(){
-
+void analyzeMonthly(){
+   //Go to monthly timeframe and mark high and lows of last month.
+ 
+   prevMonthHigh = iHigh(NULL,PERIOD_MN1,1);
+   prevMonthLow = iLow(NULL,PERIOD_MN1,1);
+   ObjectCreate(0,"MonthlyLow",OBJ_HLINE,NULL,NULL,prevMonthLow);
+   ObjectCreate(0,"MonthlyHigh",OBJ_HLINE,NULL,NULL,prevMonthHigh);
+   //NEEDS A WAY TO UPDATE EVER Y MONTH
+   
+   //Find 50% retracement & determine Bull/bear status
+   double temp = ((prevMonthHigh - prevMonthLow)/2) + prevMonthLow;
+   if (Ask > temp){
+      trend = True;
+   }
+   else{
+      trend = false;
+   }
+   
+   
 }
 
-void analyzeWeekly(){
+//true = bull , false = bear
+void analyzeWeekly(bool trends){
+
+   if(trend == true){
+   prevWeekKey = iHigh(NULL,PERIOD_W1,1);
+   }
+   else{
+    prevWeekKey = iLow(NULL,PERIOD_W1,1);
+   }
+   ObjectCreate(0,"WeeklyKey",OBJ_HLINE,NULL,NULL,prevWeekKey);
+   
 
 }
 void analyzeDaily(){
